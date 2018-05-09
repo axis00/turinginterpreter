@@ -43,6 +43,7 @@ int main(int argCount, char** argVal)
 int runState(char* state,int cur){
 
 	if(strcmp(state,"halt!") == 0) return 0;
+
 	char* buff = malloc(64 * sizeof(char));
 	strcpy(buff,state);
 	char* tok = strtok(buff,":");
@@ -51,8 +52,10 @@ int runState(char* state,int cur){
 		machineIndex++;
 	}else if(strcmp(tok,"left") == 0){
 		machineIndex--;
-		free(buff);
-		if(machineIndex < 0) return -1;
+		if(machineIndex < 0) {
+			free(buff);
+			return -1;
+		}
 	}
 
 	tok = strtok(NULL,":");	
