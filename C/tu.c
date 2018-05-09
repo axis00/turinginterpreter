@@ -2,12 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-char tape[1024] = "#aaaa#~";
+char tape[1024];
 char* machine[1024];
 int machineMax = 1;
 int machineIndex = 0;
 
-int runState(char* state);
+int runState(char* state,int cur);
 char** split(char* in,const char* delim);
 void printTape();
 void runMachine();
@@ -16,6 +16,7 @@ int main(int argCount, char** argVal)
 {
 	//read turing file
 	FILE* f = fopen(argVal[1],"r");
+	strcpy(tape,argVal[2]);
 
 	size_t buffSize = 64;
 	char* lineBuff = malloc(buffSize * sizeof(char));
@@ -28,8 +29,6 @@ int main(int argCount, char** argVal)
 		machineMax++;
 	}
 
-	printf("%c\n", tape[0]);
-
 	printf("Initial Tape : %s\n", tape);
 
 	runMachine();
@@ -41,55 +40,46 @@ int main(int argCount, char** argVal)
 
 }
 
-int runState(char* state){
+int runState(char* state,int cur){
 
 	if(strcmp(state,"halt!") == 0) return 0;
-
-	char* tok = strtok(state,":");
+	char* buff = malloc(64 * sizeof(char));
+	strcpy(buff,state);
+	char* tok = strtok(buff,":");
 
 	if(strcmp(tok,"right") == 0){
 		machineIndex++;
 	}else if(strcmp(tok,"left") == 0){
 		machineIndex--;
+		free(buff);
 		if(machineIndex < 0) return -1;
 	}
 
-	tok = strtok(NULL,":");
+	tok = strtok(NULL,":");	
 	tok = strtok(tok," ");
-	printf("%s\n", tok);
-	if(tok) printf("%s\n", "TOOOOOOK");
 	while(tok){
 		if(tok[0] == tape[machineIndex]){
 			tape[machineIndex] = strtok(NULL," ")[0];
+			free(buff);
 			return atoi(strtok(NULL," "));
 		}else{
-			tok = strtok(NULL," ");
-			while(strcmp(tok,"|") != 0 && tok){
+			tok = strtok(NULL," ");						
+			while(tok && strcmp(tok,"|") != 0){
 				tok = strtok(NULL," ");
 			}
 			tok = strtok(NULL," ");
+
 		}
 	}
 	
-	return machineIndex;
+	free(buff);
+	return cur;
 
-}
-
-void printTape(){
-	char cell;
-	int counter = 0;
-	do{
-		cell = tape[counter];
-		printf("%c", cell);
-		counter++;
-	}while(cell == '~');
-	printf("\n");
 }
 
 void runMachine(){
 	int nextState = 1;
-	while(nextState > 0){
-		printf("%d\n", nextState);
-		nextState = runState(machine[nextState]);
+	while(nextState > 0 && machineIndex < 1024){
+		nextState = runState(machine[nextState],nextState);
 	}
 }
