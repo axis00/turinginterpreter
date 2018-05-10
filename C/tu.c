@@ -8,7 +8,6 @@ int machineMax = 1;
 int machineIndex = 0;
 
 int runState(char* state,int cur);
-char** split(char* in,const char* delim);
 void printTape();
 void runMachine();
 
